@@ -43,17 +43,27 @@ npm run dev            # frontend
 npm run dev:bridge     # bridge local
 ```
 
-Abra `http://localhost:8080`. O badge no header mostra o status da KA7:
+Abra `http://localhost:8080`. Ao carregar a página o app verifica **somente o bridge** e não abre
+Bluetooth automaticamente. Isso evita conexões desnecessárias e disputa com Blueman/outros clientes.
 
 | Status         | Significado                                                                 |
 | -------------- | --------------------------------------------------------------------------- |
-| Testando...    | Consultando o bridge e sondando a impressora                                |
-| Pronta         | Bridge OK + conexão RFCOMM aberta e fechada com sucesso (só envia `ESC @`)  |
-| Indisponível   | Bridge OK, mas a impressora não respondeu (desligada / fora de alcance)     |
+| Testando...    | Verificando o bridge ou executando um teste solicitado pelo usuário         |
+| Bridge pronto  | Bridge e `imprimir-ka7` disponíveis; Bluetooth ainda não foi aberto          |
+| Pronta         | Um teste manual conseguiu abrir/enviar/fechar a conexão com a KA7            |
+| Indisponível   | O último teste real falhou                                                   |
 | Modo demo      | Bridge não encontrado (preview na nuvem ou `dev:bridge` parado)             |
 
-A sondagem **não gasta papel**: envia apenas `ESC @` (2 bytes). O botão **Teste de impressão**
-imprime de fato duas linhas via `imprimir-ka7 -t`.
+### Controles rápidos
+
+A página oferece comandos independentes, sempre com conexão sob demanda:
+
+- **Testar conexão** — envia apenas `ESC @`, sem mover papel.
+- **Teste texto** — imprime um texto curto.
+- **Reset** — reinicializa o estado ESC/POS.
+- **Feed +1 / +3 / +5 / +10** — usa `ESC d n` apenas para avançar o papel.
+- **Diagnóstico** — exibe os últimos jobs do bridge, duração, bytes, stdout e stderr reais do
+  `imprimir-ka7`. Isso evita o erro genérico "código 1" esconder a causa da falha.
 
 ### Variáveis opcionais
 
