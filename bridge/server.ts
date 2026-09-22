@@ -13,12 +13,28 @@ import { delimiter, join } from "node:path";
 const PORT = Number(process.env["KA7_BRIDGE_PORT"] ?? 7777);
 const HOST = process.env["KA7_BRIDGE_HOST"] ?? "127.0.0.1";
 const COMMAND = process.env["KA7_PRINT_CMD"] ?? "imprimir-ka7";
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 const MAX_BODY = 8 * 1024 * 1024;
 const JOB_TIMEOUT_MS = 90_000;
 const MAX_LOGS = 80;
 
 const ESC_INIT = Buffer.from([0x1b, 0x40]);
+
+function textToEscPos(text: string): Buffer {
+  // Mantemos o mesmo caminho que já provou funcionar para feed/imagem: bytes crus
+  // por stdin. Isso evita depender do modo CLI "-t" do utilitário local.
+  //
+  // ESC @      inicializa
+  // ESC a 0    alinha à esquerda
+  // texto UTF-8 normalizado
+  // LF x3      imprime e avança papel
+  const normalized = text.replace(/\r\n?/g, "\n");
+  return Buffer.concat([
+    Buffer.from([0x1b, 0x40, 0x1b, 0x61, 0x00]),
+    Buffer.from(normalized, "utf8"),
+    Buffer.from("\n\n\n", "utf8"),
+  ]);
+}
 
 function findCommand(cmd: string): string | null {
   if (cmd.includes("/")) {
@@ -307,7 +323,8 @@ const server = createServer(async (req, res) => {
       const text = String(data["text"] ?? "");
       if (!text.trim()) return json(res, 400, { ok: false, message: "Texto vazio." });
 
-      const r = await exclusive(() => runPrinter("imprimir texto", ["-t", text]));
+      const bytes = textToEscPos(text);
+      const r = await exclusive(() => runPrinter("imprimir texto", [], bytes));
       json(res, 200, r);
       return;
     }
@@ -323,5 +340,5 @@ server.listen(PORT, HOST, () => {
   console.log(`\n  KA7 bridge  →  http://${HOST}:${PORT}`);
   console.log(`  versão      →  ${VERSION}`);
   console.log(`  comando     →  ${COMMAND} ${found ? `(${found})` : "(NÃO encontrado no PATH!)"}`);
-  console.log("  controles   →  /probe · /reset · /feed · /print/text · /print/raw · /logs\n");
+  console.log("  controles   →  /probe · /reset · /feed · /print/text(raw ESC/POS) · /print/raw · /logs\n");
 });
