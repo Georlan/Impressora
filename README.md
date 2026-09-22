@@ -22,7 +22,7 @@ Estúdio local para preparar e imprimir imagens/texto na impressora térmica Blu
    ```bash
    imprimir-ka7 arquivo.bin          # arquivo
    cat arquivo.bin | imprimir-ka7    # stdin   ← é assim que o bridge usa
-   imprimir-ka7 -t "Texto"           # texto simples
+   imprimir-ka7 -t "Texto"           # continua disponível no utilitário, mas o app não depende dele
    ```
 
    Ele abre um socket Python `AF_BLUETOOTH/BTPROTO_RFCOMM`, envia em blocos de 512 bytes com
@@ -81,7 +81,7 @@ A página oferece comandos independentes, sempre com conexão sob demanda:
 | `GET  /health`      | —                            | Bridge vivo? `imprimir-ka7` encontrado no PATH?   |
 | `POST /probe`       | —                            | Envia `ESC @` por stdin (teste seguro de conexão) |
 | `POST /print/raw`   | `application/octet-stream`   | Pipe dos bytes ESC/POS → `imprimir-ka7` (stdin)   |
-| `POST /print/text`  | `{"text": "..."}`            | `imprimir-ka7 -t "..."`                           |
+| `POST /print/text`  | `{"text": "..."}`            | Gera ESC/POS de texto e envia por stdin ao `imprimir-ka7` |
 
 Um job por vez; timeout de 90 s; CORS liberado (o frontend pode estar em outra origem).
 
