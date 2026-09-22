@@ -122,7 +122,7 @@ export async function printRaw(bytes: Uint8Array): Promise<BridgeResult> {
   }
 }
 
-/** Texto simples → imprimir-ka7 -t. */
+/** Texto simples → bridge converte para ESC/POS cru e envia por stdin ao imprimir-ka7. */
 export async function printText(text: string): Promise<BridgeResult> {
   try {
     return await bridgeJson<BridgeResult>(
