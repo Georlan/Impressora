@@ -42,7 +42,7 @@ export function TextStudio({ demo, canPrint, onPrinted, initialText }: Props) {
   const print = async () => {
     if (!text.trim()) return;
     if (demo) {
-      toast.info("Modo demo: sem impressora local. Rode: imprimir-ka7 -t \"seu texto\"");
+      toast.info("Modo demo: sem impressora local. O texto será enviado como ESC/POS direto quando o bridge estiver disponível.");
       return;
     }
     setBusy(true);
@@ -67,7 +67,7 @@ export function TextStudio({ demo, canPrint, onPrinted, initialText }: Props) {
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
       <aside className="space-y-3">
         <label className="text-xs text-muted-foreground" htmlFor="ka7-text">
-          Texto (modo simples · <span className="font-mono">imprimir-ka7 -t</span>)
+          Texto (ESC/POS direto · <span className="font-mono">stdin → imprimir-ka7</span>)
         </label>
         <Textarea
           id="ka7-text"
@@ -102,7 +102,7 @@ export function TextStudio({ demo, canPrint, onPrinted, initialText }: Props) {
 
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3">
           <div className="flex-1 font-mono text-[11px] text-muted-foreground">
-            {text.length} caracteres · fonte interna da impressora
+            {text.length} caracteres · ESC/POS direto · mesmo transporte do feed
           </div>
           <Button
             size="lg"
