@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CloudOff, FlaskConical, Image as ImageIcon, Type } from "lucide-react";
+import { CloudOff, Image as ImageIcon, Type } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HistoryList } from "@/components/ka7/HistoryList";
 import { ImageStudio } from "@/components/ka7/ImageStudio";
+import { PrinterConsole } from "@/components/ka7/PrinterConsole";
 import { StatusBadge } from "@/components/ka7/StatusBadge";
 import { TextStudio } from "@/components/ka7/TextStudio";
 import { usePrinterStatus } from "@/hooks/use-printer-status";
-import { getBridgeUrl, printRaw, printText, testPrint } from "@/lib/ka7/bridge";
+import { getBridgeUrl, printRaw, printText } from "@/lib/ka7/bridge";
 import { PRINTER_INFO } from "@/lib/ka7/constants";
 import { base64ToBytes } from "@/lib/ka7/escpos";
 import {
@@ -45,23 +46,8 @@ function Index() {
 
   useEffect(() => setHistory(loadHistory()), []);
 
-  const canPrint = printer.status === "ready" || printer.status === "unavailable";
+  const canPrint = !printer.demo && Boolean(printer.health?.commandFound);
   const onPrinted = (item: HistoryItem) => setHistory(addHistoryItem(item));
-
-  const runTest = async () => {
-    if (printer.demo) {
-      toast.info("Modo demo: rode localmente com o bridge para testar a impressora.");
-      return;
-    }
-    setBusy(true);
-    const t = toast.loading("Enviando teste de impressão…");
-    const r = await testPrint();
-    setBusy(false);
-    r.ok
-      ? toast.success("Teste impresso", { id: t, description: r.message })
-      : toast.error("Teste falhou", { id: t, description: r.message });
-    void printer.refresh();
-  };
 
   const reprint = async (item: HistoryItem) => {
     if (printer.demo) {
@@ -105,10 +91,11 @@ function Index() {
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={runTest} disabled={busy || printer.status === "testing"}>
-              <FlaskConical /> Teste de impressão
-            </Button>
-            <StatusBadge status={printer.status} detail={printer.detail} onRefresh={() => void printer.refresh()} />
+            <StatusBadge
+              status={printer.status}
+              detail={printer.detail}
+              onRefresh={() => void printer.probe()}
+            />
           </div>
         </div>
       </header>
@@ -130,11 +117,17 @@ function Index() {
           <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">
             <CloudOff className="mt-0.5 size-4 shrink-0 text-destructive" />
             <div>
-              <strong>KA7 indisponível.</strong> {printer.detail} Ligue a impressora, verifique o
-              pareamento Bluetooth e clique no status para testar de novo.
+              <strong>Último comando falhou.</strong> {printer.detail} Use os controles rápidos e
+              abra o diagnóstico para ver o retorno real do utilitário.
             </div>
           </div>
         )}
+
+        <PrinterConsole
+          demo={printer.demo}
+          disabled={printer.status === "testing"}
+          onProbe={printer.probe}
+        />
 
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="h-9 bg-surface">
