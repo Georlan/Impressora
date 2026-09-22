@@ -16,7 +16,7 @@ Estúdio local para preparar e imprimir imagens/texto na impressora térmica Blu
 
 ## Pré-requisitos (Linux)
 
-1. Impressora KA-1445 pareada (Bluetooth Classic BR/EDR, SPP, RFCOMM canal 1, MAC `86:67:7A:6B:30:C4`).
+1. Impressora KA-1445 pareada (Bluetooth Classic BR/EDR, SPP, RFCOMM canal 1, MAC configurado no utilitário local `imprimir-ka7`).
 2. O utilitário **`imprimir-ka7` no PATH** (ex.: `~/.local/bin/imprimir-ka7`). O bridge depende dele:
 
    ```bash
