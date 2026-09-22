@@ -10,6 +10,7 @@ import {
 
 const LABEL: Record<PrinterStatus, string> = {
   ready: "Pronta",
+  standby: "Bridge pronto",
   unavailable: "Indisponível",
   testing: "Testando...",
   demo: "Modo demo",
@@ -17,6 +18,7 @@ const LABEL: Record<PrinterStatus, string> = {
 
 const DOT: Record<PrinterStatus, string> = {
   ready: "bg-success shadow-[0_0_10px] shadow-success/60",
+  standby: "bg-primary shadow-[0_0_10px] shadow-primary/40",
   unavailable: "bg-destructive",
   testing: "bg-warning animate-pulse-dot",
   demo: "bg-muted-foreground",
